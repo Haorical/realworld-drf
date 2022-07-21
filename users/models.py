@@ -3,6 +3,7 @@ from django.db import models
 # from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin  # 导错包了
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin  # 导错包了
 from django.conf import settings
+from core.models import TimestampModel
 
 
 class UserManager(BaseUserManager):
@@ -30,7 +31,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, TimestampModel):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
     is_active = models.BooleanField(default=True)

@@ -1,7 +1,8 @@
 from django.db import models
+from core.models import TimestampModel
 
 
-class Profile(models.Model):
+class Profile(TimestampModel):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE)  # 一对一模型 级联删除
     bio = models.TextField(blank=True)
     image = models.URLField(blank=True)

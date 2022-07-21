@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     # 'snippets',
     'users',
     'profiles',
-    'articles'
+    'articles',
+    'core',
 ]
 
 MIDDLEWARE = [
