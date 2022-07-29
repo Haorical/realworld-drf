@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from articles.views import (
     ArticleViewSet, ArticlesFavoriteAPIView, ArticlesFeedAPIView,
     CommentsListCreateAPIView, CommentsDestroyAPIView, TagListAPIView
@@ -9,7 +9,7 @@ router = DefaultRouter(trailing_slash=False)
 router.register('articles', ArticleViewSet)
 
 urlpatterns = [
-    path('articles', ArticleViewSet.as_view),  # list/
+    path('', include(router.urls)),  # list/
     path('articles/feed', ArticlesFeedAPIView.as_view()),  # feed
     path('articles/<str:article_slug>',ArticleViewSet.as_view),  # get create update article
     path('articles/<str:article_slug>/comments', CommentsListCreateAPIView.as_view()),  # add get comments

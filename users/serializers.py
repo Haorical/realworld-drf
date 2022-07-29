@@ -6,8 +6,8 @@ from profiles.models import Profile
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(max_length=128, min_length=8, write_only=True)  # 防止客户端读取
-    token = serializers.CharField(max_length=255, read_only=True)  # 注册时没有token
+    password = serializers.CharField(max_length=128, min_length=8, write_only=True)  # 仅用于反序列化输入
+    token = serializers.CharField(max_length=255, read_only=True)  # 仅用于序列化输出
 
     class Meta:
         model = User
@@ -19,12 +19,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):  # 没有继承model
     email = serializers.CharField(max_length=255)
     username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
     token = serializers.CharField(max_length=255, read_only=True)
-
+    # 登录验证
     def validate(self, attrs):
         email = attrs.get('email', None)
         password = attrs.get('password', None)

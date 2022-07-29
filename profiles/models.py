@@ -13,7 +13,7 @@ class Profile(TimestampModel):
     )
     favorites = models.ManyToManyField(
         'articles.Article',
-        related_name='favorited_by'
+        related_name='favorited_by'  # 相当于article有一个profile类型的favorited_by字段
     )
     def __str__(self): return self.user.username
 
