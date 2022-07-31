@@ -15,10 +15,10 @@ class ProfileView(generics.RetrieveAPIView):
 
     def retrieve(self, request, username, *args, **kwargs):
         try:
-            print(self.queryset)
             profile = self.queryset.get(user__username=username)
         except Profile.DoesNotExist:
             raise NotFound("no profile!!!")
+        print(request.user)
         serializer = self.serializer_class(profile, context={
             'request': request
         })

@@ -1,17 +1,13 @@
 from rest_framework import status, generics
-from rest_framework.decorators import api_view, action  # 基于函数装饰器
 from rest_framework.decorators import APIView  # 基类
 from rest_framework.response import Response  # response对象
 from rest_framework.permissions import AllowAny, IsAuthenticated
-# from django.http import HttpResponse, JsonResponse
-# from django.views.decorators.csrf import csrf_exempt  # 装饰器
-# from rest_framework.parsers import JSONParser  # json解析器
-from users.models import User
 from users.serializers import RegistrationSerializer, LoginSerializer, UserSerializer
-from django.http import Http404
+from users.renderers import UserJSONRenderer
 
 
 class RegistrationView(APIView):
+    renderer_classes = [UserJSONRenderer]
     serializer_class = RegistrationSerializer
     permission_classes = [AllowAny]
 
@@ -29,6 +25,7 @@ class RegistrationView(APIView):
 
 
 class LoginView(APIView):
+    renderer_classes = [UserJSONRenderer]
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
@@ -41,6 +38,7 @@ class LoginView(APIView):
 
 
 class UserRUView(generics.RetrieveUpdateAPIView):
+    renderer_classes = [UserJSONRenderer]
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
@@ -53,21 +51,14 @@ class UserRUView(generics.RetrieveUpdateAPIView):
         serializer_data = {
             'username': user_data.get('username', request.user.username),
             'email': user_data.get('email', request.user.email),
+            'password': user_data.get('password', None),
             'profile': {
                 'bio': user_data.get('bio', request.user.profile.bio),
                 'image': user_data.get('image', request.user.profile.image)
             }
         }
-        # serializer_data = {
-        #     'username': user_data.get('username'),
-        #     'email': user_data.get('email'),
-        #     'profile': {
-        #         'bio': user_data.get('bio'),
-        #         'image': user_data.get('image')
-        #     }
-        # }
-        # instance 使用 partial 参数来允许部分更新
         serializer = self.serializer_class(request.user, data=serializer_data, partial=True)
+        # print(serializer)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         # print(serializer.data)

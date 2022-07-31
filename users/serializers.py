@@ -28,11 +28,19 @@ class LoginSerializer(serializers.Serializer):  # 没有继承model
     def validate(self, attrs):
         email = attrs.get('email', None)
         password = attrs.get('password', None)
+        # print(email,password)
         if email is None:
             raise serializers.ValidationError("no email")
         if password is None:
             raise serializers.ValidationError('no password')
         user = authenticate(username=email, password=password)  # 检查账号密码是否匹配
+        # user = User.objects.get(email=email)
+        # if user.check_password(password):
+        #     pass
+        # else:
+        #     raise serializers.ValidationError(
+        #         'A user with this email and password was not found.'
+        #     )
         if user is None:
             raise serializers.ValidationError(
                 'A user with this email and password was not found.'
@@ -47,6 +55,7 @@ class LoginSerializer(serializers.Serializer):  # 没有继承model
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=128, write_only=True)
     profile = ProfileSerializer(write_only=True)
+    # source使用profile的属性来填充
     bio = serializers.CharField(source='profile.bio', read_only=True)
     image = serializers.CharField(source='profile.image', read_only=True)
 
@@ -57,10 +66,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)  # password有加密，不能直接设置
-        profile_data = validated_data.pop('profile', {})  # profile是个类，也不能直接遍历
+        profile_data = validated_data.pop('profile', {})  # profile是个字典，也不能直接遍历
         for key, value in validated_data.items():
             setattr(instance, key, value)  # 用于设置属性值，该属性不一定是存在的。
-        if password is None:
+        if password is not None:  # 这写错了导致，改其他资料的时候，password是None，会自动set_password
+            print(222)
             instance.set_password(password)
         instance.save()
         for key, value in profile_data.items():

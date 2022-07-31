@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 from .models import Article, Comment, Tag
 from articles.serializers import ArticleSerializer, CommentSerializer, TagSerializer
+from articles.renderers import ArticleJSONRenderer, CommentJOSNRenderer
 
 
 class ArticleViewSet(mixins.CreateModelMixin,
@@ -16,6 +17,7 @@ class ArticleViewSet(mixins.CreateModelMixin,
     queryset = Article.objects.select_related('author', 'author__user') # 外键和外键的外键的字段名全获取了
     permission_classes = [IsAuthenticated]
     serializer_class = ArticleSerializer
+    renderer_classes = [ArticleJSONRenderer]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -109,11 +111,9 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
         'author', 'author__user'
     )
     serializer_class = CommentSerializer
+    renderer_classes = [CommentJOSNRenderer]
 
     def filter_queryset(self, queryset):
-        # The built-in list function calls `filter_queryset`. Since we only
-        # want comments for a specific article, this is a good place to do
-        # that filtering.
         filters = {self.lookup_field: self.kwargs[self.lookup_url_kwarg]}
         # filters = {'article__slug': kwargs['article_slug']}
         # kwargs就是查询的参数字典
@@ -123,12 +123,11 @@ class CommentsListCreateAPIView(generics.ListCreateAPIView):
     def create(self, request, article_slug=None):
         data = request.data.get('comment', {})
         context = {'author': request.user.profile}
-
+        # print(request.user.username)
         try:
             context['article'] = Article.objects.get(slug=article_slug)
         except Article.DoesNotExist:
             raise NotFound('An article with this slug does not exist.')
-
         serializer = self.serializer_class(data=data, context=context)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -140,6 +139,7 @@ class CommentsDestroyAPIView(generics.DestroyAPIView):
     lookup_url_kwarg = 'comment_pk'
     permission_classes = [IsAuthenticated]
     queryset = Comment.objects.all()  # 先获取所有再get或filter
+    renderer_classes = [CommentJOSNRenderer]
 
     def destroy(self, request, article_slug=None, comment_pk=None):
         try:
@@ -155,6 +155,7 @@ class CommentsDestroyAPIView(generics.DestroyAPIView):
 class ArticlesFavoriteAPIView(APIView):  # 继承的低级版本写 delete 和 post方法
     permission_classes = [IsAuthenticated]
     serializer_class = ArticleSerializer
+    renderer_classes = [ArticleJSONRenderer]
 
     def delete(self, request, article_slug=None):
         profile = self.request.user.profile
@@ -206,6 +207,7 @@ class ArticlesFeedAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+    renderer_classes = [ArticleJSONRenderer]
 
     def get_queryset(self):
         return Article.objects.filter(

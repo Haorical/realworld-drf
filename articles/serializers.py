@@ -24,7 +24,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def get_favorited(self, instance):
         request = self.context.get('request', None)  # 需要给他传上下文
-        print(request)
+        # print(request)
         if request is None:
             return False
         # if not request.user.profile.is_authenticted:
@@ -77,6 +77,7 @@ class CommentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         article = self.context.get('article')
         author = self.context.get('author')
+        # print(type(author))
         return Comment.objects.create(author=author, article=article, **validated_data)
 
 

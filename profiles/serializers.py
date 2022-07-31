@@ -20,6 +20,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_following(self, obj):
         request = self.context.get('request', None)
+        # print(request) article的时候 这里拿不到上下文
+        if request is None:  # 文章的情况
+            return False
+
         follower = request.user.profile
         followee = obj
 
