@@ -1,2 +1,5 @@
 snippets/
 authentication/
+tests/
+**/*.pyc
+images/
